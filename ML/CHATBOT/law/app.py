@@ -12,21 +12,90 @@ from pinecone import Pinecone, ServerlessSpec
 import os
 
 import re
+import html
 
 def format_response(text):
-    # Remove ** from bold text
-    text = re.sub(r"\*\*(.*?)\*\*", r"\1", text)
+    """Format model text into safe HTML:
 
-    # Convert numbered points into separate lines
-    text = re.sub(r"(\d+\.)", r"<br>\1", text)  
+    - Escapes HTML to prevent injection
+    - Converts **bold** to <strong>
+    - Groups consecutive numbered lines into <ol>
+    - Groups consecutive bullet lines (-, *, •) into <ul>
+    - Bold headings like "1. Heading:" -> "1. <strong>Heading</strong>:"
+    - Preserves paragraph breaks as <br>
+    """
+    if not text:
+        return ""
 
-    # Bold headings
-    text = re.sub(r"(\d+\.\s)(.*?):", r"\1<b>\2</b>:", text)  
+    # Escape input first to avoid HTML injection
+    text = html.escape(text.strip())
 
-    # Ensure newlines are converted to <br> tags
-    text = text.replace("\n", "<br>")
+    # Convert markdown-style bold **text** to <strong>
+    text = re.sub(r"\*\*(.*?)\*\*", r"<strong>\1</strong>", text)
 
-    return text.strip()
+    # Make numbered headings bold when followed by a colon: "1. Heading:"
+    text = re.sub(r"^(\s*\d+\.\s*)([^:<\n]+):", r"\1<strong>\2</strong>:", text, flags=re.M)
+
+    # Split lines and build HTML preserving lists
+    lines = text.splitlines()
+    out = []
+    in_ul = False
+    in_ol = False
+
+    for line in lines:
+        stripped = line.strip()
+        ol_match = re.match(r"^\d+\.\s+(.*)", stripped)
+        ul_match = re.match(r"^[-\u2022\*]\s+(.*)", stripped)
+
+        if ol_match:
+            # start ordered list if needed
+            if not in_ol:
+                if in_ul:
+                    out.append("</ul>")
+                    in_ul = False
+                out.append("<ol>")
+                in_ol = True
+            out.append(f"<li>{ol_match.group(1)}</li>")
+
+        elif ul_match:
+            # start unordered list if needed
+            if not in_ul:
+                if in_ol:
+                    out.append("</ol>")
+                    in_ol = False
+                out.append("<ul>")
+                in_ul = True
+            out.append(f"<li>{ul_match.group(1)}</li>")
+
+        else:
+            # close any open lists
+            if in_ul:
+                out.append("</ul>")
+                in_ul = False
+            if in_ol:
+                out.append("</ol>")
+                in_ol = False
+
+            # blank lines -> <br>, otherwise raw line
+            if stripped == "":
+                out.append("<br>")
+            else:
+                out.append(stripped)
+
+    # close lists at end
+    if in_ul:
+        out.append("</ul>")
+    if in_ol:
+        out.append("</ol>")
+
+    # Join with <br> to preserve line breaks between blocks
+    html_text = "<br>".join(out)
+
+    # Reduce excessive vertical spacing by collapsing repeated <br> tags into a single <br>
+    # e.g. turn "<br><br>" or "<br>\n<br>" into just "<br>"
+    html_text = re.sub(r"(?:<br>\s*){2,}", "<br>", html_text)
+
+    return html_text.strip()
 
 
 
@@ -158,8 +227,8 @@ def chat():
     response = rag_chain({"question": msg})
     bot_answer = response.get("answer", "Sorry, I couldn't generate a response.")
 
-    # Format response
-    formatted_response = bot_answer.replace("\n", "<br>")
+    # Format response using the safer formatter
+    formatted_response = format_response(bot_answer)
 
     return jsonify({"response": formatted_response})
 
