@@ -31,13 +31,13 @@ const Navbar = () => {
           {/* Center Links */}
           <div className="hidden lg:flex space-x-10 text-lg font-semibold">
             <a href="/" className="text-gray-700 hover:text-gray-900 relative group">
-              Services
+              Home
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="search-lawyers" className="text-gray-700 hover:text-gray-900 relative group">
+            {/* <a href="search-lawyers" className="text-gray-700 hover:text-gray-900 relative group">
               Search
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
+            </a> */}
             <a href="chat" className="text-gray-700 hover:text-gray-900 relative group">
               AI Assistant
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
@@ -46,10 +46,10 @@ const Navbar = () => {
               AI Doc Analyser
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="dict" className="text-gray-700 hover:text-gray-900 relative group">
+            {/* <a href="dict" className="text-gray-700 hover:text-gray-900 relative group">
               Legal Dictionary
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
-            </a>
+            </a> */}
           </div>
           {/* Right Side */}
           <div className="hidden lg:flex space-x-4 items-center">

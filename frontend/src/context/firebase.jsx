@@ -17,26 +17,15 @@ import {
     uploadBytes, 
     getDownloadURL 
 } from "firebase/storage";
-// 🔥 1. Import functions
-import { getFunctions } from "firebase/functions";
-
-// Destructure env variables
-const {
-    VITE_API_KEY,
-    VITE_AUTH_DOMAIN,
-    VITE_PROJECT_ID,
-    VITE_STORAGE_BUCKET,
-    VITE_MSG_SEND_ID,
-    VITE_APP_ID
-} = import.meta.env;
+// import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: VITE_API_KEY,
-    authDomain: VITE_AUTH_DOMAIN,
-    projectId: VITE_PROJECT_ID,
-    storageBucket: VITE_STORAGE_BUCKET,
-    messagingSenderId: VITE_MSG_SEND_ID,
-    appId: VITE_APP_ID
+    apiKey: import.meta.env.VITE_API_KEY,
+    authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_MSG_SEND_ID,
+    appId: import.meta.env.VITE_APP_ID
 };
 
 // Initialize Firebase services
@@ -45,8 +34,6 @@ export const firebaseAuth = getAuth(firebaseApp);
 const googleProvider = new GoogleAuthProvider();
 const storage = getStorage(firebaseApp);
 export const db = getFirestore(firebaseApp);
-// 🔥 2. Initialize functions
-export const functions = getFunctions(firebaseApp);
 
 
 const FirebaseContext = createContext(null);
@@ -54,14 +41,16 @@ export const useFirebase = () => useContext(FirebaseContext);
 
 export const FirebaseProvider = ({ children }) => {
     const [currentUser, setCurrentUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // 🔥 Add this
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-            console.log(" Firebase Auth state changed:", user);
+            console.log("📌 Firebase Auth state changed:", user);
             setCurrentUser(user);
-            setLoading(false); 
+            setLoading(false); // ✅ Done loading
         });
+
+
         return () => unsubscribe();
     }, []);
     
@@ -131,47 +120,8 @@ export const FirebaseProvider = ({ children }) => {
         }
     };
 
-    //  3. Add new function for uploading the case file PDF
-    /**
-     * Uploads a case file to a unique path and returns the storage path.
-     * @param {string} userId - The user's ID.
-     * @param {File} file - The PDF file to upload.
-     * @returns {Promise<string>} - The full path in Firebase Storage (e.g., "caseFiles/userId/fileName.pdf")
-     */
-    const uploadCaseFileToStorage = async (userId, file) => {
-        if (!file) throw new Error("No file provided");
-        if (!userId) throw new Error("No user ID provided");
-
-        // We use a unique path for this file
-        const storagePath = `caseFiles/${userId}/${file.name}`;
-        const storageRef = ref(storage, storagePath);
-
-        try {
-            await uploadBytes(storageRef, file);
-            // We return the PATH, not the download URL,
-            // so the function can access it.
-            return storagePath; 
-        } catch (error) {
-            console.error("Error uploading case file:", error);
-            throw error;
-        }
-    };
-
-
     return (
-        <FirebaseContext.Provider 
-            value={{ 
-                signupEmail, 
-                signInWithGoogle, 
-                signinEmail, 
-                uploadProfileImage, 
-                currentUser, 
-                signOutUser,
-                loading,
-                
-                uploadCaseFileToStorage 
-            }}
-        >
+        <FirebaseContext.Provider value={{ signupEmail, signInWithGoogle, signinEmail, uploadProfileImage , currentUser , signOutUser,loading}}>
             {children}
         </FirebaseContext.Provider>
     );
