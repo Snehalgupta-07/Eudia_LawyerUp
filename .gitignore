@@ -75,3 +75,44 @@ uploaded_text.txt
 # Misc
 *.pem
 *.env
+
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtualenv
+venv/
+.venv/
+env/
+ENV/
+
+# Environment / secret files
+.env
+.env.*
+serviceAccountKey.json
+*.key
+*.pem
+secrets.json
+
+# Editor and OS
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+Thumbs.db
+
+# Python testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data, logs, outputs, models
+data/
+datasets/
+embeddings/
+models/
+check
