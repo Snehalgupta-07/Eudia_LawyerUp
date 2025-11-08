@@ -46,6 +46,10 @@ const Navbar = () => {
               AI Doc Analyser
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
             </a>
+            <a href="upload" className="text-gray-700 hover:text-gray-900 relative group">
+              Upload Files
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
+            </a>
             {/* <a href="dict" className="text-gray-700 hover:text-gray-900 relative group">
               Legal Dictionary
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300"></span>
